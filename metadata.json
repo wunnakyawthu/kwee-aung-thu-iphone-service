@@ -1,0 +1,6 @@
+{
+  "name": "iRepair Shop",
+  "description": "iPhone service repair pricing calculator and admin panel. Supports dynamic discounts and English/Myanmar translations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
