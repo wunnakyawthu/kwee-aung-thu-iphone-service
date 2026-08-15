@@ -37,7 +37,7 @@ export default function StoreSettingsForm({ lang, storeSettings, setStoreSetting
     }
   };
 
-  // Handle Branding Save (Updated with current admin session email)
+  // Handle Branding Save (Using .update with .eq('id', 1) to prevent duplicate rows/IDs)
   const handleSaveBranding = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -53,12 +53,15 @@ export default function StoreSettingsForm({ lang, storeSettings, setStoreSetting
       const { data: { user } } = await supabase.auth.getUser();
       const adminEmail = user?.email || 'admin@example.com';
 
-      const { error } = await supabase.from('store_settings').upsert({
-        id: 1,
-        name: name,
-        logo_url: logoUrl,
-        admin_username: adminEmail, // ဘယ်သူ့အကောင့်နဲ့ ပြောင်းတယ်ဆိုတာကို ထည့်သွင်းခြင်း
-      });
+      // upsert အစား update ကို သုံး၍ id: 1 ကိုသာ တိုက်ရိုက် update လုပ်ခြင်း
+      const { error } = await supabase
+        .from('store_settings')
+        .update({
+          name: name,
+          logo_url: logoUrl,
+          admin_username: adminEmail,
+        })
+        .eq('id', 1);
 
       if (error) throw error;
 
@@ -100,6 +103,11 @@ export default function StoreSettingsForm({ lang, storeSettings, setStoreSetting
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       
       if (error) throw error;
+
+      // Supabase Auth ပြင်ပြီးတာနဲ့ Database ထဲက admin_password ကိုပါ တခါတည်း update လုပ်ပေးရန်
+      await supabase.from('store_settings').update({
+        admin_password: newPassword
+      }).eq('id', 1);
 
       // 3. Success & Secure Auto-Logout
       toast.success('Password updated successfully! Please login again.', { 
