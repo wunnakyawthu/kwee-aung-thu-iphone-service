@@ -37,7 +37,7 @@ export default function StoreSettingsForm({ lang, storeSettings, setStoreSetting
     }
   };
 
-  // Handle Branding Save
+  // Handle Branding Save (Updated with current admin session email)
   const handleSaveBranding = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -49,10 +49,15 @@ export default function StoreSettingsForm({ lang, storeSettings, setStoreSetting
     const loadingToast = toast.loading('Saving store branding...');
     
     try {
+      // လက်ရှိ Login ဝင်ထားသော Admin ၏ user data ကို ယူခြင်း
+      const { data: { user } } = await supabase.auth.getUser();
+      const adminEmail = user?.email || 'admin@example.com';
+
       const { error } = await supabase.from('store_settings').upsert({
         id: 1,
         name: name,
         logo_url: logoUrl,
+        admin_username: adminEmail, // ဘယ်သူ့အကောင့်နဲ့ ပြောင်းတယ်ဆိုတာကို ထည့်သွင်းခြင်း
       });
 
       if (error) throw error;
